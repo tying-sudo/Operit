@@ -707,6 +707,8 @@
     <string name="plugin_deploy_success">Plugin deployed successfully: %1$s</string>
     <string name="plugin_deploy_failed">Deployment failed: %1$s</string>
     <string name="plugin_deploy_error">Plugin deployment failed: %1$s</string>
+    <string name="zhipu_ocr_toggle_title">Zhipu OCR</string>
+    <string name="zhipu_ocr_toggle_desc">When enabled, image text recognition prefers Zhipu GLM-OCR (consumes API quota) and falls back to local OCR on failure</string>
     <string name="plugin_deploy_complete">Plugin deployment complete, continuing startup: %1$s</string>
     <string name="plugin_runtime_error">Runtime error: %1$s</string>
     <string name="plugin_runtime_output">Runtime output:\n%1$s</string>
@@ -810,6 +812,7 @@
     <string name="theme_preset_aurora">Aurora Dark</string>
     <string name="theme_preset_material">Material Light</string>
     <string name="theme_preset_glass">Glass Dream</string>
+    <string name="theme_preset_monet">Monet Dynamic</string>
     <string name="theme_tab_basic">Basic</string>
     <string name="theme_tab_background">Background</string>
     <string name="theme_tab_chat">Chat</string>

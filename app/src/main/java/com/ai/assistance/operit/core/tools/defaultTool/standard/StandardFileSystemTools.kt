@@ -1125,60 +1125,15 @@ open class StandardFileSystemTools(protected val context: Context) {
                     }
                 }
 
-                // 情况3：默认OCR处理
+                // 情况3：默认OCR处理（开关开启时优先智谱GLM-OCR，失败自动回退本地识别）
                 try {
-                    val bitmap = withContext(Dispatchers.IO) {
-                        android.graphics.BitmapFactory.decodeFile(path)
-                    }
-                    if (bitmap != null) {
-                        val ocrText =
-                            kotlinx.coroutines.runBlocking {
-                                com.ai.assistance.operit.util
-                                    .OCRUtils.recognizeText(
-                                        context,
-                                        bitmap
-                                    )
-                            }
-                        if (ocrText.isNotBlank()) {
-                            AppLogger.d(
-                                TAG,
-                                "Successfully extracted text from image using OCR"
-                            )
-                            ToolResult(
-                                toolName = tool.name,
-                                success = true,
-                                result =
-                                FileContentData(
-                                    path = path,
-                                    content = ocrText,
-                                    size =
-                                    ocrText.length
-                                        .toLong()
-                                ),
-                                error = ""
-                            )
-                        } else {
-                            AppLogger.w(
-                                TAG,
-                                "OCR extraction returned empty text, returning no text detected message"
-                            )
-                            ToolResult(
-                                toolName = tool.name,
-                                success = true,
-                                result =
-                                FileContentData(
-                                    path = path,
-                                    content =
-                                    "No text detected in image.",
-                                    size =
-                                    "No text detected in image."
-                                        .length
-                                        .toLong()
-                                ),
-                                error = ""
-                            )
-                        }
-                    } else {
+                    val ocrOutcome =
+                        com.ai.assistance.operit.core.tools.ocr.OcrPriorityRouter.recognizeText(
+                            context,
+                            path
+                        )
+                    val ocrText = ocrOutcome.text
+                    if (ocrOutcome.decodeFailed) {
                         AppLogger.w(
                             TAG,
                             "Failed to decode image file, returning error message"
@@ -1193,6 +1148,45 @@ open class StandardFileSystemTools(protected val context: Context) {
                                 "Failed to decode image file.",
                                 size =
                                 "Failed to decode image file."
+                                    .length
+                                    .toLong()
+                            ),
+                            error = ""
+                        )
+                    } else if (ocrText.isNotBlank()) {
+                        AppLogger.d(
+                            TAG,
+                            "Successfully extracted text from image via ${ocrOutcome.source}" +
+                                (ocrOutcome.fallbackReason?.let { " (fallback: $it)" } ?: "")
+                        )
+                        ToolResult(
+                            toolName = tool.name,
+                            success = true,
+                            result =
+                            FileContentData(
+                                path = path,
+                                content = ocrText,
+                                size =
+                                ocrText.length
+                                    .toLong()
+                            ),
+                            error = ""
+                        )
+                    } else {
+                        AppLogger.w(
+                            TAG,
+                            "OCR extraction returned empty text, returning no text detected message"
+                        )
+                        ToolResult(
+                            toolName = tool.name,
+                            success = true,
+                            result =
+                            FileContentData(
+                                path = path,
+                                content =
+                                "No text detected in image.",
+                                size =
+                                "No text detected in image."
                                     .length
                                     .toLong()
                             ),

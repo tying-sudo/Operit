@@ -639,11 +639,19 @@ class AttachmentDelegate(private val context: Context, private val toolHandler: 
                             context.getString(R.string.attachment_location_full_screen_simple)
                         }
 
-                    val ocrText = OCRUtils.recognizeText(
-                        context = context,
-                        uri = Uri.fromFile(File(screenshotPath)),
-                        quality = OCRUtils.Quality.HIGH
-                    ).trim()
+                    val ocrOutcome =
+                            com.ai.assistance.operit.core.tools.ocr.OcrPriorityRouter.recognizeText(
+                                context = context,
+                                imagePath = screenshotPath,
+                                quality = OCRUtils.Quality.HIGH
+                            )
+                    if (ocrOutcome.fallbackReason != null) {
+                        AppLogger.w(
+                            TAG,
+                            "智谱OCR优先识别未生效，已回退本地识别: ${ocrOutcome.fallbackReason}"
+                        )
+                    }
+                    val ocrText = ocrOutcome.text.trim()
 
                     if (ocrText.isBlank()) {
                         _toastEvent.emit(context.getString(R.string.attachment_no_screen_text))

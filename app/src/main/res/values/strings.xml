@@ -705,6 +705,8 @@
     <string name="plugin_deploy_success">插件部署成功: %1$s</string>
     <string name="plugin_deploy_failed">部署失败: %1$s</string>
     <string name="plugin_deploy_error">插件部署失败: %1$s</string>
+    <string name="zhipu_ocr_toggle_title">智谱OCR识图</string>
+    <string name="zhipu_ocr_toggle_desc">开启后，图片文字识别优先调用智谱GLM-OCR（会消耗API额度），失败时自动回退本地识别</string>
     <string name="plugin_deploy_complete">插件部署完成，继续启动: %1$s</string>
     <string name="plugin_runtime_error">运行时错误: %1$s</string>
     <string name="plugin_runtime_output">运行时输出:\n%1$s</string>
@@ -721,6 +723,7 @@
     <string name="theme_preset_aurora">极光深色</string>
     <string name="theme_preset_material">素雅浅色</string>
     <string name="theme_preset_glass">玻璃梦境</string>
+    <string name="theme_preset_monet">全局莫奈取色</string>
     <string name="theme_tab_basic">基础</string>
     <string name="theme_tab_background">背景</string>
     <string name="theme_tab_chat">聊天</string>
