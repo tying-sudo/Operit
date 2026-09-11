@@ -73,33 +73,75 @@ private val XmlTagSuggestions = listOf(
     XmlTagSuggestion("meta", R.string.xml_tag_desc_meta),
 )
 
+/**
+ * 线性扫描解析消息中的成对 XML 标签，等价于旧正则语义但不含回溯：
+ * 从每个 `<tag...>` 开始查找第一个 `</tag>` 作为闭合，未闭合或非法的 `<`
+ * 一律按普通文本处理。长消息（尤其含大量标签）不会再触发灾难性回溯。
+ */
 fun parseMessageContentForEditor(content: String): List<ParsedMessagePart> {
     val parts = mutableListOf<ParsedMessagePart>()
-    // 支持带属性的标签
-    val regex = "<([a-zA-Z0-9_-]+)([^>]*)>([\\s\\S]*?)</\\1>".toRegex(RegexOption.DOT_MATCHES_ALL)
-    var lastIndex = 0
+    val text = StringBuilder()
+    var index = 0
+    val length = content.length
 
-    regex.findAll(content).forEach { matchResult ->
-        val startIndex = matchResult.range.first
-        if (startIndex > lastIndex) {
-            val textPart = content.substring(lastIndex, startIndex)
-            if (textPart.isNotBlank()) {
-                parts.add(ParsedMessagePart(PartType.TEXT, textPart, null, null))
+    fun flushText() {
+        if (text.isNotBlank()) {
+            parts.add(ParsedMessagePart(PartType.TEXT, text.toString(), null, null))
+            text.setLength(0)
+        }
+    }
+
+    while (index < length) {
+        val open = content.indexOf('<', index)
+        if (open < 0) {
+            text.append(content, index, length)
+            break
+        }
+        if (open > index) {
+            text.append(content, index, open)
+        }
+        val close = content.indexOf('>', open + 1)
+        if (close < 0) {
+            text.append(content, open, length)
+            break
+        }
+        val body = content.substring(open + 1, close)
+        if (body.isEmpty() || body[0] == '/' || body[0] == '!' || body[0] == '?') {
+            // 不是开始标签，当作普通文本推进
+            text.append('<')
+            index = open + 1
+            continue
+        }
+        var nameEnd = 0
+        while (nameEnd < body.length) {
+            val c = body[nameEnd]
+            if (c.isLetterOrDigit() || c == '_' || c == '-') {
+                nameEnd++
+            } else {
+                break
             }
         }
-        val tag = matchResult.groupValues[1]
-        val attributes = matchResult.groupValues[2]
-        val tagContent = matchResult.groupValues[3]
-        parts.add(ParsedMessagePart(PartType.XML, tagContent, tag, attributes))
-        lastIndex = matchResult.range.last + 1
-    }
-
-    if (lastIndex < content.length) {
-        val trailingText = content.substring(lastIndex)
-        if (trailingText.isNotBlank()) {
-            parts.add(ParsedMessagePart(PartType.TEXT, trailingText, null, null))
+        if (nameEnd == 0) {
+            text.append('<')
+            index = open + 1
+            continue
         }
+        val tagName = body.substring(0, nameEnd)
+        val attrs = body.substring(nameEnd)
+        val closeTag = "</$tagName>"
+        val closeIndex = content.indexOf(closeTag, close + 1)
+        if (closeIndex < 0) {
+            // 没有闭合标签，按文本处理
+            text.append(content, open, close + 1)
+            index = close + 1
+            continue
+        }
+        flushText()
+        val inner = content.substring(close + 1, closeIndex)
+        parts.add(ParsedMessagePart(PartType.XML, inner, tagName, attrs))
+        index = closeIndex + closeTag.length
     }
+    flushText()
     return parts
 }
 
@@ -123,7 +165,9 @@ fun MessageEditor(
     showResendButton: Boolean
 ) {
     val context = LocalContext.current
-    val initialParts = remember(editingMessageContent.value) {
+    // 仅在编辑器首次打开时解析一次；击键由 partsState 驱动，
+    // 避免输入法打字时对长内容反复全量解析。
+    val initialParts = remember {
         parseMessageContentForEditor(editingMessageContent.value)
     }
     var partsState by remember { mutableStateOf(initialParts) }
