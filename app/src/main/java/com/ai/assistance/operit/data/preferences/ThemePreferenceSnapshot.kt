@@ -50,6 +50,7 @@ data class ThemePreferenceValues(
         fun defaultVisual(): ThemePreferenceValues =
             ThemePreferenceValues(
                 strings = mapOf(
+                    "theme_preset" to UserPreferencesManager.THEME_PRESET_DEFAULT,
                     "theme_mode" to UserPreferencesManager.THEME_MODE_LIGHT,
                     "background_media_type" to UserPreferencesManager.MEDIA_TYPE_IMAGE,
                     "app_bar_content_color_mode" to
@@ -157,6 +158,7 @@ data class ThemePreferenceSnapshot(
     val values: ThemePreferenceValues,
 ) {
     val themeMode: String get() = values.requiredString("theme_mode")
+    val themePreset: String get() = values.requiredString("theme_preset")
     val useSystemTheme: Boolean get() = values.requiredBoolean("use_system_theme")
     val useCustomColors: Boolean get() = values.requiredBoolean("use_custom_colors")
     val customPrimaryColor: Int? get() = values.int("custom_primary_color")

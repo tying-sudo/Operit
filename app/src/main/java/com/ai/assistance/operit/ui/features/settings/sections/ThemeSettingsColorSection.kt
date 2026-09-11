@@ -605,15 +605,20 @@ internal fun ThemeSettingsColorCustomizationSection(
                 Switch(
                     checked = useCustomColorsInput,
                     onCheckedChange = { enabled ->
-                        editorSession.update { current ->
-                            var updated = current.withBoolean("use_custom_colors", enabled)
-                            if (enabled) {
-                                updated =
-                                    updated
-                                        .withInt("custom_primary_color", primaryColorInput)
-                                        .withInt("custom_secondary_color", secondaryColorInput)
+                        // 开启自定义配色时退出主题套装（套装方案会绕过自定义配色）
+                        if (enabled) {
+                            editorSession.update { current ->
+                                current
+                                    .withBoolean("use_custom_colors", true)
+                                    .withString(
+                                        "theme_preset",
+                                        UserPreferencesManager.THEME_PRESET_DEFAULT,
+                                    )
+                                    .withInt("custom_primary_color", primaryColorInput)
+                                    .withInt("custom_secondary_color", secondaryColorInput)
                             }
-                            updated
+                        } else {
+                            editorSession.setBoolean("use_custom_colors", false)
                         }
                     },
                 )

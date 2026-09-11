@@ -4,14 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerToolPkg = registerToolPkg;
-const index_ui_js_1 = __importDefault(require("./ui/deepseek_harness_dashboard/index.ui.js"));
-const DEEPSEEK_HARNESS_ROUTE = "toolpkg:com.operit.sidebar_deepseek_harness:ui:deepseek_harness_dashboard";
+const index_ui_js = __importDefault(require("./ui/deepseek_harness_dashboard/index.ui.js"));
+const DEEPSEEK_HARNESS_ROUTE = "toolpkg:com.operit.sidebar_deepseek_harness:ui:deepseek_harness_dashboard_v036";
 function registerToolPkg() {
     ToolPkg.registerUiRoute({
-        id: "deepseek_harness_dashboard",
+        id: "deepseek_harness_dashboard_v036",
         route: DEEPSEEK_HARNESS_ROUTE,
         runtime: "compose_dsl",
-        screen: index_ui_js_1.default,
+        screen: index_ui_js.default,
         params: {},
         keepAlive: true,
         title: {
@@ -27,7 +27,7 @@ function registerToolPkg() {
             zh: "DeepSeek Harness",
             en: "DeepSeek Harness",
         },
-        icon: Icons.Code,
+        icon: Icons.Psychology,
         order: 131,
     });
     return true;

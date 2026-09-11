@@ -804,6 +804,12 @@
 
     <!-- Theme Settings Screen -->
     <string name="theme_title_mode">Theme Mode</string>
+    <string name="theme_preset_title">Theme Presets</string>
+    <string name="theme_preset_desc">Apply a complete UI style in one tap; you can still fine-tune afterwards</string>
+    <string name="theme_preset_default">Default</string>
+    <string name="theme_preset_aurora">Aurora Dark</string>
+    <string name="theme_preset_material">Material Light</string>
+    <string name="theme_preset_glass">Glass Dream</string>
     <string name="theme_tab_basic">Basic</string>
     <string name="theme_tab_background">Background</string>
     <string name="theme_tab_chat">Chat</string>

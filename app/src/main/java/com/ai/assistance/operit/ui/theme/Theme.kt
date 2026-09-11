@@ -131,6 +131,7 @@ fun OperitTheme(content: @Composable () -> Unit) {
     val systemFontName = themeSnapshot.systemFontName
     val customFontPath = themeSnapshot.customFontPath
     val fontScale = themeSnapshot.fontScale
+    val themePreset = themeSnapshot.themePreset
 
     // 创建自定义 Typography
     val customTypography = remember(useCustomFont, fontType, systemFontName, customFontPath, fontScale) {
@@ -144,10 +145,11 @@ fun OperitTheme(content: @Composable () -> Unit) {
         )
     }
 
-    // 确定是否使用暗色主题
+    // 确定是否使用暗色主题（主题套装优先锁定明暗）
     val systemDarkTheme = isSystemInDarkTheme()
     val darkTheme =
-            if (useSystemTheme) {
+            presetDarkTheme(themePreset)
+                    ?: if (useSystemTheme) {
                 systemDarkTheme
             } else {
                 themeMode == UserPreferencesManager.THEME_MODE_DARK
@@ -156,9 +158,10 @@ fun OperitTheme(content: @Composable () -> Unit) {
     // Dynamic color is available on Android 12+
     val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
-    // 基础主题色调
+    // 基础主题色调（主题套装优先于动态/静态配色）
     var colorScheme =
-            when {
+            presetColorScheme(themePreset)
+                    ?: when {
                 dynamicColor -> {
                     if (darkTheme) dynamicDarkColorScheme(context)
                     else dynamicLightColorScheme(context)
@@ -167,8 +170,8 @@ fun OperitTheme(content: @Composable () -> Unit) {
                 else -> LightColorScheme
             }
 
-    // 应用自定义颜色和文本颜色
-    if (useCustomColors) {
+    // 应用自定义颜色和文本颜色（仅默认主题套装支持自定义颜色）
+    if (themePreset == UserPreferencesManager.THEME_PRESET_DEFAULT && useCustomColors) {
         customPrimaryColor?.let { primaryArgb ->
             val primary = Color(primaryArgb)
             val secondary = customSecondaryColor?.let { Color(it) } ?: colorScheme.secondary
@@ -214,7 +217,9 @@ fun OperitTheme(content: @Composable () -> Unit) {
                 // 根据状态栏背景色动态设置状态栏图标颜色
                 // isAppearanceLightStatusBars = true 表示图标为深色（适用于浅色背景）
                 // isAppearanceLightStatusBars = false 表示图标为浅色（适用于深色背景）
-                insetsController?.isAppearanceLightStatusBars = !isColorLight(Color(statusBarColor))
+                insetsController?.isAppearanceLightStatusBars =
+                    if (statusBarColor == android.graphics.Color.TRANSPARENT) !darkTheme
+                    else !isColorLight(Color(statusBarColor))
             }
             
             // 设置导航栏颜色（底部小白条所在的区域）
@@ -360,6 +365,20 @@ fun OperitTheme(content: @Composable () -> Unit) {
                                 },
                             )
                 )
+
+                // 主题套装背景层：仅在无自定义背景图/视频时绘制，位于基础底色之上、内容之下
+                if (!(useBackgroundImage && backgroundImageUri != null)) {
+                    ThemePresetBackgroundLayer(
+                        preset = themePreset,
+                        modifier = Modifier.fillMaxSize().then(
+                            if (waterGlassState != null) {
+                                Modifier.liquefiable(waterGlassState)
+                            } else {
+                                Modifier
+                            },
+                        ),
+                    )
+                }
 
                 if (useBackgroundImage && backgroundImageUri != null) {
                     val uri = Uri.parse(backgroundImageUri)

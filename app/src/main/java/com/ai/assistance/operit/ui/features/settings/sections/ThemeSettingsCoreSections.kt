@@ -104,7 +104,21 @@ internal fun ThemeSettingsThemeModeSection(
 
                 Switch(
                     checked = useSystemThemeInput,
-                    onCheckedChange = { editorSession.setBoolean("use_system_theme", it) },
+                    onCheckedChange = { checked ->
+                        // 开启"跟随系统"时退出主题套装，否则套装激活期间该开关看不到效果
+                        if (checked) {
+                            editorSession.update { values ->
+                                values
+                                    .withBoolean("use_system_theme", true)
+                                    .withString(
+                                        "theme_preset",
+                                        UserPreferencesManager.THEME_PRESET_DEFAULT,
+                                    )
+                            }
+                        } else {
+                            editorSession.setBoolean("use_system_theme", false)
+                        }
+                    },
                 )
             }
 
@@ -126,10 +140,18 @@ internal fun ThemeSettingsThemeModeSection(
                         selected = themeModeInput == UserPreferencesManager.THEME_MODE_LIGHT,
                         modifier = Modifier.weight(1f),
                         onClick = {
-                            editorSession.setString(
-                                "theme_mode",
-                                UserPreferencesManager.THEME_MODE_LIGHT,
-                            )
+                            // 手动选择基础模式时退出主题套装
+                            editorSession.update { values ->
+                                values
+                                    .withString(
+                                        "theme_mode",
+                                        UserPreferencesManager.THEME_MODE_LIGHT,
+                                    )
+                                    .withString(
+                                        "theme_preset",
+                                        UserPreferencesManager.THEME_PRESET_DEFAULT,
+                                    )
+                            }
                         },
                     )
 
@@ -138,10 +160,18 @@ internal fun ThemeSettingsThemeModeSection(
                         selected = themeModeInput == UserPreferencesManager.THEME_MODE_DARK,
                         modifier = Modifier.weight(1f),
                         onClick = {
-                            editorSession.setString(
-                                "theme_mode",
-                                UserPreferencesManager.THEME_MODE_DARK,
-                            )
+                            // 手动选择基础模式时退出主题套装
+                            editorSession.update { values ->
+                                values
+                                    .withString(
+                                        "theme_mode",
+                                        UserPreferencesManager.THEME_MODE_DARK,
+                                    )
+                                    .withString(
+                                        "theme_preset",
+                                        UserPreferencesManager.THEME_PRESET_DEFAULT,
+                                    )
+                            }
                         },
                     )
                 }

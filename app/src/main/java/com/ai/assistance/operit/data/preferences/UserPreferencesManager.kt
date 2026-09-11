@@ -91,6 +91,7 @@ class UserPreferencesManager private constructor(private val context: Context) {
 
         // 主题设置相关键
         private val THEME_MODE = stringPreferencesKey("theme_mode")
+        private val THEME_PRESET = stringPreferencesKey("theme_preset")
         private val USE_SYSTEM_THEME = booleanPreferencesKey("use_system_theme")
         private val CUSTOM_PRIMARY_COLOR = intPreferencesKey("custom_primary_color")
         private val CUSTOM_SECONDARY_COLOR = intPreferencesKey("custom_secondary_color")
@@ -255,6 +256,12 @@ class UserPreferencesManager private constructor(private val context: Context) {
         // 主题模式常量
         const val THEME_MODE_LIGHT = "light"
         const val THEME_MODE_DARK = "dark"
+
+        // 主题套装常量（3 套预设 UI）
+        const val THEME_PRESET_DEFAULT = "default"
+        const val THEME_PRESET_AURORA = "aurora"
+        const val THEME_PRESET_MATERIAL = "material"
+        const val THEME_PRESET_GLASS = "glass"
 
         // AppBar 内容颜色模式常量
         const val APP_BAR_CONTENT_COLOR_MODE_LIGHT = "light"
@@ -802,7 +809,7 @@ class UserPreferencesManager private constructor(private val context: Context) {
 
     private fun getAllStringThemeKeys(): List<Preferences.Key<String>> {
         return listOf(
-            THEME_MODE, BACKGROUND_IMAGE_URI, BACKGROUND_MEDIA_TYPE, APP_BAR_CONTENT_COLOR_MODE,
+            THEME_MODE, THEME_PRESET, BACKGROUND_IMAGE_URI, BACKGROUND_MEDIA_TYPE, APP_BAR_CONTENT_COLOR_MODE,
             CHAT_STYLE, KEY_CUSTOM_USER_AVATAR_URI, KEY_CUSTOM_AI_AVATAR_URI, KEY_AVATAR_SHAPE,
             KEY_ON_COLOR_MODE, KEY_CUSTOM_CHAT_TITLE, INPUT_STYLE, FONT_TYPE, SYSTEM_FONT_NAME,
             CUSTOM_FONT_PATH, BUBBLE_USER_FONT_TYPE, BUBBLE_USER_SYSTEM_FONT_NAME,

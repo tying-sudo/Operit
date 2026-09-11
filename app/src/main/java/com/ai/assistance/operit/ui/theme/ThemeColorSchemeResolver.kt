@@ -32,15 +32,19 @@ fun resolveThemeColorScheme(
     val systemDarkTheme =
         (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
             Configuration.UI_MODE_NIGHT_YES
+    // 主题套装优先锁定明暗
     val darkTheme =
-        if (snapshot.useSystemTheme) {
+        presetDarkTheme(snapshot.themePreset)
+            ?: if (snapshot.useSystemTheme) {
             systemDarkTheme
         } else {
             snapshot.themeMode == UserPreferencesManager.THEME_MODE_DARK
         }
 
+    // 主题套装优先于动态/静态配色
     var colorScheme =
-        when {
+        presetColorScheme(snapshot.themePreset)
+            ?: when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
                 if (darkTheme) {
                     dynamicDarkColorScheme(context)
@@ -52,7 +56,9 @@ fun resolveThemeColorScheme(
             else -> ResolvedLightColorScheme
         }
 
-    if (snapshot.useCustomColors) {
+    // 仅默认主题套装支持自定义颜色
+    if (snapshot.themePreset == UserPreferencesManager.THEME_PRESET_DEFAULT &&
+            snapshot.useCustomColors) {
         snapshot.customPrimaryColor?.let { primaryArgb ->
             val primary = Color(primaryArgb)
             val secondary = snapshot.customSecondaryColor?.let(::Color) ?: colorScheme.secondary

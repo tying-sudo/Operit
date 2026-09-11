@@ -22,6 +22,7 @@ import com.ai.assistance.operit.ui.features.settings.components.ColorPickerDialo
 import com.ai.assistance.operit.ui.features.settings.sections.ThemeSettingsColorContentMode
 import com.ai.assistance.operit.ui.features.settings.sections.ThemeSettingsColorCustomizationSection
 import com.ai.assistance.operit.ui.features.settings.sections.ThemeSettingsFontSection
+import com.ai.assistance.operit.ui.features.settings.sections.ThemeSettingsPresetSection
 import com.ai.assistance.operit.ui.features.settings.sections.ThemeSettingsThemeModeSection
 import com.ai.assistance.operit.ui.main.components.rememberNavigationDrawerAppearance
 import com.ai.assistance.operit.util.AppLogger
@@ -38,6 +39,12 @@ internal fun ThemeSettingsBasicTab(
     val pickGlobalFont = rememberGlobalFontPicker(
         context = shared.context,
         shared = shared,
+    )
+
+    ThemeSettingsPresetSection(
+        cardColors = cardColors,
+        editorSession = editorSession,
+        themePresetInput = values.requiredString("theme_preset"),
     )
 
     ThemeSettingsThemeModeSection(

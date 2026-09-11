@@ -715,6 +715,12 @@
 
     <!-- Theme Settings Screen -->
     <string name="theme_title_mode">主题模式</string>
+    <string name="theme_preset_title">主题套装</string>
+    <string name="theme_preset_desc">一键应用整套界面风格，应用后仍可逐项微调</string>
+    <string name="theme_preset_default">默认</string>
+    <string name="theme_preset_aurora">极光深色</string>
+    <string name="theme_preset_material">素雅浅色</string>
+    <string name="theme_preset_glass">玻璃梦境</string>
     <string name="theme_tab_basic">基础</string>
     <string name="theme_tab_background">背景</string>
     <string name="theme_tab_chat">聊天</string>

@@ -13,7 +13,10 @@ function(operit_git_ref_var out_var dependency_name git_ref)
     string(REPLACE "-" "_" dependency_key "${dependency_key}")
 
     set(ref_var "OPERIT_${dependency_key}_GIT_REF")
-    if(NOT DEFINED ${ref_var})
+    if(DEFINED ENV{${ref_var}})
+        # 本地构建环境变量覆盖（离线构建/锁定依赖版本时使用）
+        set(${ref_var} "$ENV{${ref_var}}" CACHE STRING "Git ref used to fetch ${dependency_name}" FORCE)
+    elseif(NOT DEFINED ${ref_var})
         set(${ref_var} "${git_ref}" CACHE STRING "Git ref used to fetch ${dependency_name}")
     endif()
 
@@ -66,9 +69,15 @@ function(operit_declare_git_source dependency_name repository git_ref)
     operit_git_ref_var(ref_var "${dependency_name}" "${git_ref}")
     operit_resolve_git_ref(resolved_sha "${repository}" "${${ref_var}}")
     operit_github_archive_url(archive_url "${repository}" "${resolved_sha}")
-    operit_normalize_source_token(source_token "${dependency_name}-${resolved_sha}")
 
     set(deps_root "${CMAKE_SOURCE_DIR}/.cxx/operit_deps")
+    if(DEFINED ENV{OPERIT_DEPS_ROOT})
+        # Windows MAX_PATH 限制下，本地构建可用 OPERIT_DEPS_ROOT 指定短路径依赖根，
+        # 并截断目录名中的 SHA 以缩短 ninja 文件中的路径长度
+        set(deps_root "$ENV{OPERIT_DEPS_ROOT}")
+        string(SUBSTRING "${resolved_sha}" 0 12 resolved_sha)
+    endif()
+    operit_normalize_source_token(source_token "${dependency_name}-${resolved_sha}")
     set(source_dir "${deps_root}/${source_token}-src")
     set(binary_dir "${deps_root}/${source_token}-build")
 
@@ -83,6 +92,11 @@ endfunction()
 
 function(operit_populate_git_source out_source_dir out_binary_dir dependency_name)
     string(TOLOWER "${dependency_name}" dependency_var_prefix)
+
+    # OPERIT_DEPS_OFFLINE=1 时跳过下载，直接使用已填充的 SOURCE_DIR
+    if(DEFINED ENV{OPERIT_DEPS_OFFLINE})
+        set(FETCHCONTENT_FULLY_DISCONNECTED ON CACHE BOOL "" FORCE)
+    endif()
 
     FetchContent_GetProperties(${dependency_name})
     if(NOT ${dependency_var_prefix}_POPULATED)
