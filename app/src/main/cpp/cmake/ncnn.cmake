@@ -98,7 +98,7 @@ function(download_ncnn)
   operit_declare_git_source(
     ncnn
     "https://github.com/Tencent/ncnn.git"
-    "master"
+    "c0abf4830d8f8637efa5d34fce3985ba3d8642bd"
     PATCH_COMMAND
       ${CMAKE_COMMAND}
       -DNCNN_SOURCE_DIR=<SOURCE_DIR>

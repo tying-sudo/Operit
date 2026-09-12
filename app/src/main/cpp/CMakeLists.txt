@@ -42,7 +42,7 @@ if(ANDROID)
             OPERIT_SHERPA_NCNN_BINARY_DIR
             sherpa_ncnn
             "https://github.com/k2-fsa/sherpa-ncnn.git"
-            "master"
+            "c61e50d61e9fbed5972afa4d95bc560e168affe2"
     )
 
     list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -106,7 +106,7 @@ if(ANDROID)
             OPERIT_WAMR_BINARY_DIR
             wamr
             "https://github.com/bytecodealliance/wasm-micro-runtime.git"
-            "main"
+            "d7050d9fe672e2d0bc65c44c966cebc0a1aca14b"
     )
 
     set(WAMR_ROOT_DIR "${OPERIT_WAMR_SOURCE_DIR}")

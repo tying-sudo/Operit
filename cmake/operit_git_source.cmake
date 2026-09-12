@@ -18,6 +18,9 @@ function(operit_git_ref_var out_var dependency_name git_ref)
         set(${ref_var} "$ENV{${ref_var}}" CACHE STRING "Git ref used to fetch ${dependency_name}" FORCE)
     elseif(NOT DEFINED ${ref_var})
         set(${ref_var} "${git_ref}" CACHE STRING "Git ref used to fetch ${dependency_name}")
+    elseif(NOT "${${ref_var}}" STREQUAL "${git_ref}")
+        # 调用点钉版 SHA 更新后迁移旧缓存（含由分支名创建的历史缓存）
+        set(${ref_var} "${git_ref}" CACHE STRING "Git ref used to fetch ${dependency_name}" FORCE)
     endif()
 
     set(${out_var} "${ref_var}" PARENT_SCOPE)
@@ -78,6 +81,14 @@ function(operit_declare_git_source dependency_name repository git_ref)
         string(SUBSTRING "${resolved_sha}" 0 12 resolved_sha)
     endif()
     operit_normalize_source_token(source_token "${dependency_name}-${resolved_sha}")
+
+    if(DEFINED ENV{OPERIT_DEPS_OFFLINE})
+        # 离线模式：从本地归档目录提供依赖源码，不访问 GitHub
+        set(archive_url "${deps_root}/archives/${source_token}.tar")
+    elseif(EXISTS "${deps_root}/archives/${source_token}.tar")
+        # 本地已预置归档时直接使用，避免访问 GitHub（网络受限环境）
+        set(archive_url "${deps_root}/archives/${source_token}.tar")
+    endif()
     set(source_dir "${deps_root}/${source_token}-src")
     set(binary_dir "${deps_root}/${source_token}-build")
 
@@ -92,11 +103,6 @@ endfunction()
 
 function(operit_populate_git_source out_source_dir out_binary_dir dependency_name)
     string(TOLOWER "${dependency_name}" dependency_var_prefix)
-
-    # OPERIT_DEPS_OFFLINE=1 时跳过下载，直接使用已填充的 SOURCE_DIR
-    if(DEFINED ENV{OPERIT_DEPS_OFFLINE})
-        set(FETCHCONTENT_FULLY_DISCONNECTED ON CACHE BOOL "" FORCE)
-    endif()
 
     FetchContent_GetProperties(${dependency_name})
     if(NOT ${dependency_var_prefix}_POPULATED)

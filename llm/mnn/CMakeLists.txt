@@ -24,7 +24,7 @@ operit_prepare_git_source(
     OPERIT_KLEIDIAI_BINARY_DIR
     kleidiai
     "https://github.com/ARM-software/kleidiai.git"
-    "v1.16.0"
+    "fa0a8e861d58451e0a3a0d1588bc0d49bad23743"
 )
 
 # MNN can update schema/default/MNN.fbs and its C++ sources in separate commits.
